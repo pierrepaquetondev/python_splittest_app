@@ -3,7 +3,6 @@ import pandas as pd
 import fnv_c
 import xxhash
 import ctypes
-import re
 
 def to_int64(number):
     return ctypes.c_longlong(number).value
@@ -19,7 +18,8 @@ def hash_64_int_signed(text):
 
 def process_file(uploaded_file, optimization_id, split_ratio):
     df = pd.read_csv(uploaded_file)
-    url_column_candidates = [c for c in df.columns.values.tolist() if re.search(r"url", c, re.I)]
+
+    url_column_candidates = [c for c in df.columns if 'url' in c.lower()]
 
     
     if not len(url_column_candidates) :
