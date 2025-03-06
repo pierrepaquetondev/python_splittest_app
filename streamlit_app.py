@@ -35,22 +35,42 @@ def process_file(uploaded_file, optimization_id, split_ratio):
     return df
 
 def main():
+    download_csv_enabled = False
     st.title("URL Split-Testing Identifier")
+    with st.form("my_form"):
+        uploaded_file = st.file_uploader("Upload a CSV file containing a single column named 'URL'", type=["csv"])
     
-    uploaded_file = st.file_uploader("Upload a CSV file containing a single column named 'URL'", type=["csv"])
+        optimization_id = st.text_input("Enter Optimization ID", max_chars=8, placeholder="ID must be 8-character-long")
+        split_ratio = st.number_input("Enter Variant Group Size (%)", min_value=0, max_value=100, value=50, step=10)
     
-    optimization_id = st.text_input("Enter Optimization ID")
-    split_ratio = st.number_input("Enter Variant Group Size (%)", min_value=0, max_value=100, value=50, step=10)
-    
-    if uploaded_file is not None:
-        df_result = process_file(uploaded_file, optimization_id, split_ratio)
         
-        if df_result is not None:
-            st.write("Processed Data Preview:")
-            st.dataframe(df_result.head(20))
+        submitted = st.form_submit_button("Submit")
+        if submitted:
+            download_csv_enabled = False
+            if uploaded_file is None:
+                st.error("You must upload a CSV file containing a 'URL' column.")
+                st.stop()
+            if optimization_id is None or len(optimization_id) < 8:
+                st.error("You must enter a valid optimization id.")
+                st.stop()
+
+
+            if uploaded_file is not None:
+
+                df_result = process_file(uploaded_file, optimization_id, split_ratio)
+        
+                if df_result is not None:
+                    st.write("Processed Data Preview:")
+                    st.dataframe(df_result.head(20))
             
-            csv = df_result.to_csv(index=False).encode('utf-8')
-            st.download_button("Download Processed CSV", data=csv, file_name="url_list_with_split.csv", mime="text/csv")
+                    csv = df_result.to_csv(index=False).encode('utf-8')
+                    download_csv_enabled = True
+                    
+                else:
+                    st.error("An error happened while processing the file.")
+    if download_csv_enabled:
+        st.download_button("Download Processed CSV", data=csv, file_name="url_list_with_split.csv", mime="text/csv")       
+
 
 if __name__ == "__main__":
     main()
