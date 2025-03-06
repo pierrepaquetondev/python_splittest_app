@@ -36,7 +36,13 @@ def process_file(uploaded_file, optimization_id, split_ratio):
 
 def main():
     download_csv_enabled = False
+
+    st.set_page_config(
+    page_title="PPA ST App",
+    )
+
     st.title("URL Split-Testing Identifier")
+    
     with st.form("my_form"):
         uploaded_file = st.file_uploader("Upload a CSV file containing a single column named 'URL'", type=["csv"])
     
