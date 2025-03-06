@@ -30,7 +30,7 @@ def process_file(uploaded_file, optimization_id, split_ratio):
 
     module_id_hash = hash_64_int_signed(optimization_id)
     
-    df["in_variant_group"] = df[column_to_use_for_url].apply(lambda url: abs(fnv1_64(url) ^ module_id_hash) % 100 < split_ratio)
+    df["in_variant_group"] = df[column_to_use_for_url].apply(lambda url: abs(fnv1_64(url.split('#')[0]) ^ module_id_hash) % 100 < split_ratio)
     
     return df
 
@@ -40,7 +40,7 @@ def main():
     uploaded_file = st.file_uploader("Upload a CSV file containing a single column named 'URL'", type=["csv"])
     
     optimization_id = st.text_input("Enter Optimization ID")
-    split_ratio = st.number_input("Enter Split Ratio (%)", min_value=0, max_value=100, value=50, step=10)
+    split_ratio = st.number_input("Enter Variant Group Size (%)", min_value=0, max_value=100, value=50, step=10)
     
     if uploaded_file is not None:
         df_result = process_file(uploaded_file, optimization_id, split_ratio)
